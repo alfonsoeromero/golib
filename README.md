@@ -1,4 +1,7 @@
 # golib
+[![Maintainability](https://api.codeclimate.com/v1/badges/7f998988113c7ae5ff28/maintainability)](https://codeclimate.com/github/alfonsoeromero/golib/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/7f998988113c7ae5ff28/test_coverage)](https://codeclimate.com/github/alfonsoeromero/golib/test_coverage)
+
 A library to work with the Gene Ontology
 
 ## Functionality
