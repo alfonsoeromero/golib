@@ -33,11 +33,13 @@ class OboLineReader:
             line.startswith(OboLineReaderContracts.comment_char)
 
     def _clean_line(self, line: str) -> str:
-        line = line.strip()
-        if OboLineReaderContracts.comment_char in line:
-            return line.split(OboLineReaderContracts.comment_char)[0].strip()
-        else:
-            return line
+        if self._line_is_useful(line):
+            line = line.strip()
+            if OboLineReaderContracts.comment_char in line:
+                return line.split(OboLineReaderContracts.comment_char)[0].strip()
+            else:
+                return line
+        return ""
 
     def __iter__(self) -> Iterable[str]:
         """Main iterable's method, yields clean and non-empty lines
@@ -53,7 +55,6 @@ class OboLineReader:
             string objects
         """
         for line in self._ensure_file(self._file):
-            if self._line_is_useful(line):
-                clean_line = self._clean_line(line)
-                if clean_line:
-                    yield clean_line
+            clean_line = self._clean_line(line)
+            if clean_line:
+                yield clean_line

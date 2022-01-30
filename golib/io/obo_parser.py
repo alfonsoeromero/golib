@@ -70,17 +70,20 @@ class OboParser:
         # If the value starts with a quotation mark, we parse it as a
         # Python string -- luckily this is the same as an OBO string
         if value_and_mod and value_and_mod[0] == '"':
-            g = tokenize.generate_tokens(StringIO(value_and_mod).readline)
-            for toknum, tokval, _, (_, ecol), _ in g:
-                if toknum == tokenize.STRING:
-                    value = literal_eval(tokval)
-                    mod = (value_and_mod[ecol:].strip(), )
-                    break
-                raise ParseError("Cannot parse string literal")
+            value, mod = self._extract_value_and_mod(value_and_mod)
         else:
             value = value_and_mod
             mod = None
         return tag, Value(value, mod)
+
+    def _extract_value_and_mod(self, value_and_mod) -> Tuple[str, Value]:
+        g = tokenize.generate_tokens(StringIO(value_and_mod).readline)
+        for toknum, tokval, _, (_, ecol), _ in g:
+            if toknum == tokenize.STRING:
+                value = literal_eval(tokval)
+                mod = (value_and_mod[ecol:].strip(), )
+                return value, mod
+            raise ParseError("Cannot parse string literal")
 
     def __iter__(self) -> Iterator[Stanza]:
         """Iterates over the stanzas in this OBO file,
@@ -89,13 +92,14 @@ class OboParser:
         stanza: Optional[Stanza] = None
         for line in self._lines():
             beginning_of_stanza = self._line_is_beginning_of_stanza(line)
+            if beginning_of_stanza and stanza:
+                yield stanza
+
             reading_header = reading_header and not beginning_of_stanza
 
             if reading_header:
                 self._read_header_line(line)
             elif beginning_of_stanza:
-                if stanza:
-                    yield stanza
                 stanza = Stanza(line[1:-1])
             else:
                 tag, value = self._parse_line(line)
