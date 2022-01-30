@@ -99,7 +99,6 @@ class OboParser:
             for toknum, tokval, _, (_, ecol), _ in g:
                 if toknum == tokenize.STRING:
                     value = literal_eval(tokval)
-                    print(value)
                     mod = (value_and_mod[ecol:].strip(), )
                     break
                 raise ParseError("cannot parse string literal", self.lineno)
@@ -120,19 +119,32 @@ class OboParser:
             key, value = self._parse_line(line)
             self.headers[key].append(value.value)
 
+    def _line_is_beginning_of_stanza(self, line: str) -> bool:
+        if line:
+            return line[0] == "["
+        else:
+            return False
+
+    def _build_stanza_from_line(self, line: str,
+                                previous_stanza: Optional[Stanza]) -> Stanza:
+        if previous_stanza:
+            yield Stanza
+        return Stanza(line[1:-1])
+
     def __iter__(self) -> Iterator[Stanza]:
         """Iterates over the stanzas in this OBO file,
         yielding a `Stanza` object for each stanza."""
         stanza: Optional[Stanza] = None
-        if self._extra_line and self._extra_line[0] == '[':
-            stanza = Stanza(self._extra_line[1:-1])
+        if self._line_is_beginning_of_stanza(self._extra_line):
+            stanza = self._build_stanza_from_line(self._extra_line,
+                                                  stanza)
+
         for line in self._lines():
             if not line:
                 continue
-            if line[0] == '[':
-                if stanza:
-                    yield stanza
-                stanza = Stanza(line[1:-1])
+            if self._line_is_beginning_of_stanza(line):
+                stanza = self._build_stanza_from_line(line,
+                                                      stanza)
                 continue
             tag, value = self._parse_line(line)
             stanza.add_tag_value(tag, value)
