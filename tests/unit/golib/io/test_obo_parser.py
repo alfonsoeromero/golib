@@ -15,6 +15,7 @@ class TestOboParser(TestCase):
 
         # act
         sut = OboParser(self._fixture.obo_file_only_header)
+        _ = [x for x in sut]
         actual_header_keys = list(sut.headers.keys())
         actual_header_values = sum(len(v) for v in sut.headers.values())
 
@@ -30,9 +31,9 @@ class TestOboParser(TestCase):
 
         # act
         sut = OboParser(self._fixture.obo_file)
+        stanzas = [x for x in sut]
         actual_header_keys = list(sut.headers.keys())
         actual_header_values = sum(len(v) for v in sut.headers.values())
-        stanzas = [x for x in sut]
         actual_num_stanzas = len(stanzas)
 
         # assert

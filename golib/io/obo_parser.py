@@ -4,7 +4,9 @@ from ast import literal_eval
 from collections import defaultdict
 from io import StringIO
 from typing import IO, DefaultDict, Iterator, Optional, Tuple, Union
+from golib.io.obo_format_error import OboFormatError
 
+from golib.io.obo_line_reader import OboLineReader
 from golib.io.parse_error import ParseError
 from golib.io.stanza import Stanza
 from golib.io.value import Value
@@ -30,66 +32,39 @@ class OboParser:
         parser as if it were a list. The iterator yields `Stanza`
         objects.
         """
-        if isinstance(fp, str):
-            fp = open(fp)
-        self.fp = fp
+        self._reader = OboLineReader(fp)
         self.line_regex = re.compile(r"\s*(?P<tag>[^:]+):\s*(?P<value>.*)")
         self.lineno: int = 0
-        self._extra_line = None
         self.headers: DefaultDict = defaultdict(list)
-        self._read_headers()
+        # self._read_headers()
 
-    def _lines(self):
-        """Iterates over the lines of the file, removing
-        comments and trailing newlines and merging multi-line
-        tag-value pairs into a single line"""
-        while True:
-            self.lineno += 1
-            line = self.fp.readline()
-            if not line:
-                break
-
-            line = line.strip()
-            if not line:
-                yield line
-                continue
-
-            if line[0] == '!':
-                continue
-            if line[-1] == '\\':
-                # This line is continued in the next line
-                lines = [line[:-1]]
-                finished = False
-                while not finished:
-                    self.lineno += 1
-                    line = self.fp.readline()
-                    if line[0] == '!':
-                        continue
-                    line = line.strip()
-                    if line[-1] == '\\':
-                        lines.append(line[:-1])
-                    else:
-                        lines.append(line)
-                        finished = True
-                line = " ".join(lines)
-            else:
-                try:
-                    # Search for a trailing comment
-                    comment_char = line.rindex("!")
-                    if line[comment_char + 1] != '=':
-                        line = line[0:comment_char].strip()
-                except ValueError:
-                    # No comment, fine
-                    pass
+    def _lines(self) -> str:
+        """Iterates over the lines of the file"""
+        for line in self._reader:
             yield line
+
+    def _line_is_beginning_of_stanza(self, line: str) -> bool:
+        if line:
+            return line[0] == "["
+        else:
+            return False
+
+    def _read_header_line(self, line: str) -> None:
+        """Reads the headers from the OBO file"""
+        if not line or self._line_is_beginning_of_stanza(line):
+            # We have reached the end of headers
+            return
+        key, value = self._parse_line(line)
+        self.headers[key].append(value.value)
 
     def _parse_line(self, line: str) -> Tuple[str, Value]:
         """Parses a single line consisting of a tag-value pair
-        and optional modifiers. Returns the tag name and the
-        value as a `Value` object."""
+        separated by ':', plus optional modifiers. Returns the
+        tag name and the value as a `Value` object."""
         match = self.line_regex.match(line)
         if not match:
-            return False
+            raise OboFormatError(f"Cannot parse. Line '{line}' has "
+                                 "unexpected format.")
         tag, value_and_mod = match.group("tag"), match.group("value")
 
         # If the value starts with a quotation mark, we parse it as a
@@ -101,52 +76,29 @@ class OboParser:
                     value = literal_eval(tokval)
                     mod = (value_and_mod[ecol:].strip(), )
                     break
-                raise ParseError("cannot parse string literal", self.lineno)
+                raise ParseError("Cannot parse string literal")
         else:
             value = value_and_mod
             mod = None
-
-        value = Value(value, mod)
-        return tag, value
-
-    def _read_headers(self) -> None:
-        """Reads the headers from the OBO file"""
-        for line in self._lines():
-            if not line or line[0] == '[':
-                # We have reached the end of headers
-                self._extra_line = line
-                return
-            key, value = self._parse_line(line)
-            self.headers[key].append(value.value)
-
-    def _line_is_beginning_of_stanza(self, line: str) -> bool:
-        if line:
-            return line[0] == "["
-        else:
-            return False
-
-    def _build_stanza_from_line(self, line: str,
-                                previous_stanza: Optional[Stanza]) -> Stanza:
-        if previous_stanza:
-            yield Stanza
-        return Stanza(line[1:-1])
+        return tag, Value(value, mod)
 
     def __iter__(self) -> Iterator[Stanza]:
         """Iterates over the stanzas in this OBO file,
         yielding a `Stanza` object for each stanza."""
+        reading_header = True
         stanza: Optional[Stanza] = None
-        if self._line_is_beginning_of_stanza(self._extra_line):
-            stanza = self._build_stanza_from_line(self._extra_line,
-                                                  stanza)
-
         for line in self._lines():
-            if not line:
-                continue
-            if self._line_is_beginning_of_stanza(line):
-                stanza = self._build_stanza_from_line(line,
-                                                      stanza)
-                continue
-            tag, value = self._parse_line(line)
-            stanza.add_tag_value(tag, value)
+            beginning_of_stanza = self._line_is_beginning_of_stanza(line)
+            reading_header = reading_header and not beginning_of_stanza
+
+            if reading_header:
+                self._read_header_line(line)
+            elif beginning_of_stanza:
+                if stanza:
+                    yield stanza
+                stanza = Stanza(line[1:-1])
+            else:
+                tag, value = self._parse_line(line)
+                stanza.add_tag_value(tag, value)
         if stanza:
             yield stanza

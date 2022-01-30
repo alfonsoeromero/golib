@@ -1,0 +1,2 @@
+class OboFormatError(Exception):
+    pass
