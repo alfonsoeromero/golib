@@ -36,7 +36,8 @@ class OboLineReader:
         if self._line_is_useful(line):
             line = line.strip()
             if OboLineReaderContracts.comment_char in line:
-                return line.split(OboLineReaderContracts.comment_char)[0].strip()
+                return line.split(
+                    OboLineReaderContracts.comment_char)[0].strip()
             else:
                 return line
         return ""
