@@ -4,6 +4,13 @@ from golib.config.gaf_line_reader_contracts import GafLineReaderContracts
 
 
 class GafLineReader:
+    """
+    A parser of lines belonging to a GAF file:
+    http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/
+
+    It will ignore comments, but will recognize headers included
+    in the comments.
+    """
     def __init__(self, file: Union[str, IO]) -> None:
         self._file = file
 
@@ -25,6 +32,7 @@ class GafLineReader:
     def _line_is_comment(self, line: str) -> bool:
         if line[0] == GafLineReaderContracts.comment_char:
             return not self._line_is_header(line)
+        return False
 
     def _line_is_useful(self, line: str) -> bool:
         return line and line.strip() and not self._line_is_comment(line)

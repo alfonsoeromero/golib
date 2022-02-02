@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 
 
-@dataclass
+@dataclass(frozen=True)
 class GOAnnotation:
 
     db: str
@@ -25,7 +25,7 @@ class GOAnnotation:
     gene_product_form_id: Optional[str] = None
 
     @staticmethod
-    def from_line(line):
+    def from_line(line) -> GOAnnotation:
         args = line.strip().split("\t")
         list_indices = [3, 5, 7, 9, 10, 12, 15, 16]
         for i in list_indices:
@@ -33,10 +33,6 @@ class GOAnnotation:
                 args[i] = args[i].split("|")
 
         return GOAnnotation(*args)
-
-    def __str__(self) -> str:
-        """Returns the GO ID"""
-        return self.go_id
 
     def __repr__(self) -> str:
         """Returns a Python representation of this Object"""

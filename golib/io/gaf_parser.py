@@ -1,14 +1,24 @@
-from email.policy import default
-from typing import IO, Optional, Union, DefaultDict, Iterator
 from collections import defaultdict
 from golib.io.gaf_line_reader import GafLineReader
 from golib.io.go_annotation import GOAnnotation
+from typing import IO, Optional, Union, DefaultDict, Iterator
 
 
 class GafParser:
+    """
+    A parser of GAF files:
+    http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/
+
+    It will ignore comments, but will recognize headers included
+    in the comments.
+
+    The parser should be used as an iterator that will provide
+    GOAnnotation objects. The headers will be available on the
+    GafParser instance after the iterarion returs the first
+    GOAnnotation instance.
+    """
     def __init__(self, fp: Union[str, IO]):
         self._reader = GafLineReader(fp)
-        self.lineno: int = 0
         self.headers: DefaultDict = defaultdict(str)
 
     def _lines(self) -> str:
