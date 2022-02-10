@@ -1,9 +1,8 @@
-from typing import IO, Iterable, Union
-
 from golib.config.obo_line_reader_contracts import OboLineReaderContracts
+from golib.io.abstract_line_reader import AbstractLineReader
 
 
-class OboLineReader:
+class OboLineReader(AbstractLineReader):
     """Utility for iterating through lines of an OBO file,
         doing three things:
         1.- it returns only lines with content
@@ -11,22 +10,6 @@ class OboLineReader:
         3.- it removes any trailing comment from a line that has
         proper content
     """
-
-    def __init__(self, file: Union[IO, str]) -> None:
-        """Constructor
-
-        Parameters
-        ----------
-        file : Union[IO, str]
-            file name or file object that we want to read.
-        """
-        self._file = file
-
-    def _ensure_file(self, fp: Union[IO, str]) -> IO:
-        if isinstance(fp, str):
-            return open(fp)
-        else:
-            return fp
 
     def _line_is_useful(self, line: str) -> bool:
         return line and line.strip() and not\
@@ -41,21 +24,3 @@ class OboLineReader:
             else:
                 return line
         return ""
-
-    def __iter__(self) -> Iterable[str]:
-        """Main iterable's method, yields clean and non-empty lines
-
-        Returns
-        -------
-        Iterable[str]
-            different lines present in the file
-
-        Yields
-        -------
-        Iterator[Iterable[str]]
-            string objects
-        """
-        for line in self._ensure_file(self._file):
-            clean_line = self._clean_line(line)
-            if clean_line:
-                yield clean_line

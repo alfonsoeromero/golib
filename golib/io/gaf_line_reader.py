@@ -1,9 +1,8 @@
-from typing import IO, Iterable, Union
-
 from golib.config.gaf_line_reader_contracts import GafLineReaderContracts
+from golib.io.abstract_line_reader import AbstractLineReader
 
 
-class GafLineReader:
+class GafLineReader(AbstractLineReader):
     """
     A parser of lines belonging to a GAF file:
     http://geneontology.org/docs/go-annotation-file-gaf-format-2.2/
@@ -11,14 +10,6 @@ class GafLineReader:
     It will ignore comments, but will recognize headers included
     in the comments.
     """
-    def __init__(self, file: Union[str, IO]) -> None:
-        self._file = file
-
-    def _ensure_file(self, fp: Union[IO, str]) -> IO:
-        if isinstance(fp, str):
-            return open(fp)
-        else:
-            return fp
 
     def _line_is_header(self, line: str) -> bool:
         if GafLineReaderContracts.header_separation_str in line:
@@ -39,12 +30,5 @@ class GafLineReader:
 
     def _clean_line(self, line: str) -> str:
         if self._line_is_useful(line):
-            line = line.strip()
-            return line
+            return line.strip()
         return ""
-
-    def __iter__(self) -> Iterable[str]:
-        for line in self._ensure_file(self._file):
-            clean_line = self._clean_line(line)
-            if clean_line:
-                yield clean_line
