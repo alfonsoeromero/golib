@@ -1,0 +1,13 @@
+!gaf-version: 2.2
+!
+!The set of protein accessions included in this file is based on UniProt reference proteomes, which provide one protein per gene.
+!They include the protein sequences annotated in Swiss-Prot or the longest TrEMBL transcript if there is no Swiss-Prot record.
+!If a particular protein accession is not annotated with GO, then it will not appear in this file.
+!
+!Note that the annotation set in this file is filtered in order to reduce redundancy; the full, unfiltered set can be found in
+!ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/goa_uniprot_all.gz
+!
+!date-generated: 2021-11-08 15:47
+!generated-by: UniProt
+!go-version: http://purl.obolibrary.org/obo/go/releases/2021-11-06/extensions/go-plus.owl
+!
