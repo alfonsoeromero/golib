@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 from collections import defaultdict
-from typing import ClassVar, DefaultDict, List, Set
-from core.gene_ontology import GeneOntology
+from typing import Any, ClassVar, DefaultDict, List, Set
+import numpy as np
 
 @dataclass
-class GOTerm
+class GOTerm:
     """
     A class representing a Gene Ontology Term
     """
@@ -14,25 +14,32 @@ class GOTerm
     go_id: str
     name: str
     domain: str
-    self.ontology: GeneOntology
+    ontology: Any
     # KeyWord arguments
-    annotations: DefaultDict = field(default_factory=lambda: defaultdict(set))
+    relations: DefaultDict = field(default_factory=lambda: defaultdict(set))
+    annotations: DefaultDict = field(default_factory=lambda: defaultdict(dict))
     aliases: List[str] = field(default_factory=list)
-    self.ic: DefaultDict = field(default_factory=lambda: defaultdict(int))
+    ic: DefaultDict = field(default_factory=lambda: defaultdict(int))
     is_obsolete: bool = False
 
-    def add_relation(self, go_term : GOTerm, relation: str):
+    def __hash__(self) -> int:
+        return hash(self.go_id)
+
+    def __repr__(self) -> str:
+        return f"{self.go_id}"
+
+    def add_relation(self, go_term: Any, relation: str):
         if relation in GOTerm.SUPPORTED_RELATIONS:
             self.relations[relation].add(go_term)
             go_term.relations[f"a_{relation}"].add(self)
 
-    def parents(self, relations:List[str]=GOTerm.SUPPORTED_RELATIONS) -> Set:
+    def parents(self, relations: List[str]=SUPPORTED_RELATIONS) -> Set:
         _parents = set()
         for relation in relations:
             _parents |= self.relations[relation]
         return _parents
         
-    def ancestors(self, relations:List[str]=GOTerm.SUPPORTED_RELATIONS) -> Set:
+    def ancestors(self, relations: List[str]=SUPPORTED_RELATIONS) -> Set:
         _ancestors = set()
         for relation in relations:
             _ancestors |= self.relations[relation]
@@ -40,13 +47,13 @@ class GOTerm
                 _ancestors |= term.ancestors(relations)
         return _ancestors
 
-    def children(self, relations=List[str]=GOTerm.SUPPORTED_RELATIONS) -> Set:
+    def children(self, relations: List[str]=SUPPORTED_RELATIONS) -> Set:
         _children = set()
         for relation in relations:
             _children |= self.relations[f"a_{relation}"]
         return _children
 
-    def descendants(self, relations:List[str]=GOTerm.SUPPORTED_RELATIONS) -> Set:
+    def descendants(self, relations: List[str]=SUPPORTED_RELATIONS) -> Set:
         _descendants = set()
         for relation in relations:
             _descendants |= self.relations[f"a_{relation}"]
@@ -55,8 +62,8 @@ class GOTerm
         return _descendants
 
     def up_propagate_annotations(self, organism_name:str,
-                                 relations=List[str]=GOTerm.SUPPORTED_RELATIONS,
-                                 same_domain:bool=True) -> None:
+                                 relations: List[str]=SUPPORTED_RELATIONS,
+                                 same_domain: bool=True) -> None:
         """
         Recursively up-propagates the annotations until the root term
 
@@ -76,15 +83,15 @@ class GOTerm
             for term in self.relations[relation]:
                 if (same_domain and term.domain == self.domain) or not same_domain:
                     for prot, score in self.annotations[organism_name].items():
-                        if prot in terms.annotations[organism_name].keys():
+                        if prot in term.annotations[organism_name].keys():
                             term.annotations[organism_name][prot] = max(
                                 term.annotations[organism_name][prot], score
                             )
                         else:
                             term.annotations[organism_name][prot] = score
-                        term.up_propagate_annotations(organism_name,
-                                                      relations=relations,
-                                                      same_domain=same_domain)
+                    term.up_propagate_annotations(organism_name,
+                                                  relations=relations,
+                                                  same_domain=same_domain)
 
     def information_content(self, organism_name: str) -> DefaultDict:
         """
