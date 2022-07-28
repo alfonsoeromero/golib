@@ -49,6 +49,10 @@ class GeneOntology:
         # a cache of the aliases to speed-up access
         self._alias_map: Dict = {}
         self._verbose = verbose
+        # useful caches for calculations
+        self._annotation_counts_cache: Dict = {}
+        self._is_uppropagated: Dict = {}
+         
 
     def find_term(self, go_id: str) -> GOTerm:
         """
@@ -164,6 +168,7 @@ class GeneOntology:
                         skip_counter["not_in_domain"] += 1
                 except KeyError:
                     skip_counter["term_not_found"] += 1
+        self._is_uppropagated[organism_name] = False
         return skip_counter
 
     def up_propagate_annotations(self, organism_name: str,
@@ -191,14 +196,26 @@ class GeneOntology:
         # up-propagate
         for term in track(annotated_terms, description="Up-propagating recursively..."):
             term.up_propagate_annotations(organism_name, relations=relations)
+
+        # store the amounts in the annotation cache
+        annotations = self.annotations(organism_name)
+        self._annotation_counts_cache[organism_name] = {}
+        self._annotation_counts_cache[organism_name]["global"] = annotations.shape[0]
+        for domain in GeneOntology.DOMAINS:
+            condition = annotations["Domain"] == domain
+            count = annotations[condition].shape[0]
+            self._annotation_counts_cache[organism_name][domain] = count
+
+        self._is_uppropagated[organism_name] = True
                     
     def annotations(self, organism_name: str) -> pd.DataFrame:
-        d = {k: [] for k in ["GO ID", "Protein", "Score"]}
+        d = {k: [] for k in ["GO ID", "Protein", "Score", "Domain"]}
         for term in self._terms.values():
             if organism_name in term.annotations:
                 for protein, score in term.annotations[organism_name].items():
                     d["GO ID"].append(term.go_id)
                     d["Protein"].append(protein)
                     d["Score"].append(score)
+                    d["Domain"].append(term.domain)
         return pd.DataFrame(d)
         
