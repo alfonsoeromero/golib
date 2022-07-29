@@ -33,7 +33,7 @@ class GafParserFixture:
     def expected_num_unique_go_terms(self) -> int:
         return 13343
 
-    def expected_unique_evidence_codes(self) -> int:
+    def expected_unique_evidence_codes(self) -> List[str]:
         return sorted(
             [
                 "IBA",

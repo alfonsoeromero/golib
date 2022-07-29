@@ -36,7 +36,8 @@ class AbstractLineReader(ABC):
         Iterator[Iterable[str]]
             string objects
         """
-        for line in self._ensure_file(self._file):
-            clean_line = self._clean_line(line)
-            if clean_line:
-                yield clean_line
+        with self._ensure_file(self._file) as f:
+            for line in f:
+                clean_line = self._clean_line(line)
+                if clean_line:
+                    yield clean_line
