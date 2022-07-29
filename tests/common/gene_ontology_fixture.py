@@ -36,4 +36,12 @@ class GeneOntologyFixture:
         # This number was obtain with the GOTool code from S2F
         return 4226
 
-
+    def expected_cache(self) -> Dict:
+        return {
+            "dog" : {
+                "global": 4226,
+                "biological_process": 2177,
+                "cellular_component": 1559,
+                "molecular_function": 490,
+            }
+        }

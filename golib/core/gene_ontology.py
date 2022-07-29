@@ -80,7 +80,6 @@ class GeneOntology:
         """
         obo_parser = OboParser(self._obo)
         stanzas = []
-        print("")
         for stanza in obo_parser:
             if stanza.name != "Term":
                 continue
@@ -174,7 +173,7 @@ class GeneOntology:
     def up_propagate_annotations(self, organism_name: str,
                                  relations: List[str]=GOTerm.SUPPORTED_RELATIONS) -> None:
         """
-        Up-propagate all annotations within an annoatation set
+        Up-propagate all annotations within an annotation set
 
         Parameters
         ----------

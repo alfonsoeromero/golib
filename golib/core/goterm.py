@@ -122,7 +122,3 @@ class GOTerm:
         return self.ic[organism_name]
 
 
-
-
-
-

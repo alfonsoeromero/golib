@@ -56,3 +56,15 @@ class TestGeneOntology(TestCase):
         actual_num_annotations = sut.annotations("dog").shape[0]
 
         self.assertEqual(actual_num_annotations, excpected_uppropagated_num_annotations)
+
+    def test_annotation_cache(self):
+        obo_file = self._fixture.obo_file
+        gaf_file = self._fixture.gaf_file
+
+        sut = GeneOntology(obo_file)
+        sut.build_ontology()
+        sut.load_gaf_file(gaf_file, "dog")
+        sut.up_propagate_annotations("dog")
+
+        expected_cache = self._fixture.expected_cache()
+        self.assertEqual(sut._annotation_counts_cache, expected_cache)
