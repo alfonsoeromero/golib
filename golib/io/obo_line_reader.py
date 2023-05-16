@@ -19,8 +19,18 @@ class OboLineReader(AbstractLineReader):
         if self._line_is_useful(line):
             line = line.strip()
             if OboLineReaderContracts.comment_char in line:
-                return line.split(
-                    OboLineReaderContracts.comment_char)[0].strip()
+                # check if comment char appears within quotes
+                if '"' not in line:
+                    return line.split(
+                        OboLineReaderContracts.comment_char)[0].strip()
+                else:
+                    all_comments_idxs = self._find(
+                        line, OboLineReaderContracts.comment_char)
+                    within_quotes = self._separator_within_quotes(
+                        line, OboLineReaderContracts.comment_char, '"')
+                    for i, within in enumerate(within_quotes):
+                        if not within:
+                            return line[:i].strip()
             else:
                 return line
         return ""
