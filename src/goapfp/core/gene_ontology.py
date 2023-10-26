@@ -11,7 +11,7 @@ class GeneOntology:
     """
     An abstraction to interact with the Gene Ontology
 
-    It allows the user to load a obo structure, and annotate it 
+    It allows the user to load a obo structure, and annotate it
     using GAF files.
 
     Parameters
@@ -123,6 +123,71 @@ class GeneOntology:
                     if split_relation[0] == "part_of":
                         self.find_term(go_id).add_relation(self.find_term(split_relation[1]), "part_of")
 
+    def load_annotation_file(self, annotation_file: str,
+                             organism_name: str,
+                             domains: List[str] = DOMAINS,
+                             annotate_obsolete: bool = False) -> Dict:
+        """
+        Loads annotations from a tab separated file with one of the following
+        formats:
+            protein\tgoterm
+            protein\tgoterm\tscore
+
+        in the first case, all scores are assumed to be 1
+
+        Parameters
+        ----------
+        annotation_file : str
+            Path to the annotation file
+        organism_name : str
+            annotation set. If it does not exist, it will be created.
+            If it already exists, this function does nothing.
+        domains : list of str, default ['biological_process',
+                                        'cellular_component',
+                                        'molecular_function']
+            if specificed, only domains for the included domains will be
+            included in the annotation set
+        annotate_obsolete : bool, default False
+            if set to True, the obsolete qualifier is ignored
+
+        Returns
+        -------
+        Dict
+            A dictionary of how many annotations were skipped.
+            Keys indicate the reason of the skip, values are the counts.
+
+        Note
+        ----
+        The loaded annotations are not up-propagated.
+        """
+        skip_counter = {k: 0 for k in ["term_obsolete",
+                                       "not_in_domain",
+                                       "term_not_found"]}
+        with open(annotation_file) as annotations:
+            for line in annotations:
+                fields = line.strip().split("\t")
+                match fields:
+                    case (protein, goterm):
+                        score = 1.0
+                    case (protein, goterm, score):
+                        score = float(score)
+                    case _:
+                        raise ValueError
+                try:
+                    term = self.find_term(goterm)
+                except KeyError:
+                    skip_counter["term_not_found"] += 1
+
+                if term.domain in domains:
+                    if annotate_obsolete or not term.is_obsolete:
+                        term.annotations[organism_name][protein] = score
+                    else:
+                        skip_counter["term_obsolete"] += 1
+                else:
+                    skip_counter["not_in_domain"] += 1
+        self._is_uppropagated[organism_name] = False
+        return skip_counter
+
     def load_gaf_file(self, gaf_file: str, organism_name: str,
                       evidence_codes: List[str] = EXPERIMENTAL_EVIDENCE_CODES,
                       domains: List[str] = DOMAINS,
@@ -137,10 +202,17 @@ class GeneOntology:
         organism_name : str
             annotation set. If it does not exist, it will be created.
             If it already exists, this function does nothing.
+        domains : list of str, default ['biological_process',
+                                        'cellular_component',
+                                        'molecular_function']
+            if specificed, only domains for the included domains will be
+            included in the annotation set
+        annotate_obsolete : bool, default False
+            if set to True, the obsolete qualifier is ignored
 
         Returns
         -------
-        Dict 
+        Dict
             A dictionary of how many annotations were skipped.
             Keys indicate the reason of the skip, values are the counts.
 
