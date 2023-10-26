@@ -1,5 +1,5 @@
 from unittest import TestCase
-from golib.io.gaf_parser import GafParser
+from go_lib.io.gaf_parser import GafParser
 
 from tests.common.gaf_parser_fixture import GafParserFixture
 

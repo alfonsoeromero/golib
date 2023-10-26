@@ -1,5 +1,5 @@
 from unittest import TestCase
-from golib.io.obo_parser import OboParser
+from go_lib.io.obo_parser import OboParser
 
 from tests.common.obo_parser_fixture import OboParserFixture
 

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from golib.io.obo_line_reader import OboLineReader
+from go_lib.io.obo_line_reader import OboLineReader
 
 from tests.common.obo_line_reader_fixture import OboLineReaderFixture
 

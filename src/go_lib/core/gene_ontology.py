@@ -1,6 +1,6 @@
-from golib.io.obo_parser import OboParser
-from golib.io.gaf_parser import GafParser
-from golib.core.goterm import GOTerm
+from go_lib.io.obo_parser import OboParser
+from go_lib.io.gaf_parser import GafParser
+from go_lib.core.goterm import GOTerm
 from typing import Dict, List
 from rich.progress import track
 import pandas as pd

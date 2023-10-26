@@ -1,6 +1,6 @@
 import os
 from typing import Dict, List
-from golib.core.gene_ontology import GeneOntology
+from go_lib.core.gene_ontology import GeneOntology
 
 
 class GeneOntologyFixture:

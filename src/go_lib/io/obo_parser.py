@@ -4,12 +4,11 @@ from ast import literal_eval
 from collections import defaultdict
 from io import StringIO
 from typing import IO, DefaultDict, Iterator, Optional, Tuple, Union
-from golib.io.obo_format_error import OboFormatError
-
-from golib.io.obo_line_reader import OboLineReader
-from golib.io.parse_error import ParseError
-from golib.io.stanza import Stanza
-from golib.io.value import Value
+from go_lib.io.obo_format_error import OboFormatError
+from go_lib.io.obo_line_reader import OboLineReader
+from go_lib.io.parse_error import ParseError
+from go_lib.io.stanza import Stanza
+from go_lib.io.value import Value
 
 
 class OboParser:

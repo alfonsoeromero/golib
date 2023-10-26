@@ -3,10 +3,24 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "golib"
-version = "0.0.1"
+name = "go-lib"
+version = "0.0.dev1"
+description = "Utility tools to work with the Gene Ontology in Python"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Alfonso E. Romero", email = "alfonsoeromero@gmail.com"},
+    {name = "Mateo Torres", email = "torresmateo@gmail.com"},
+]
+keywords = ["Gene Ontology", "bioinformatics", "protein function prediction"]
 dependencies = [
     "numpy",
     "pandas",
     "rich",
 ]
+
+[project.urls]
+Repository = "https://github.com/torresmateo/golib/tree/development"
+
+[tool.setuptools.packages.find]
+where = ["src"]
