@@ -38,10 +38,10 @@ class GeneOntologyFixture:
 
     def expected_cache(self) -> Dict:
         return {
-            "dog" : {
+            "dog": {
                 "global": 4226,
-                "biological_process": 2177,
-                "cellular_component": 1559,
-                "molecular_function": 490,
+                "biological_process": 74,
+                "cellular_component": 120,
+                "molecular_function": 72,
             }
         }

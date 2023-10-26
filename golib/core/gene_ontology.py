@@ -43,7 +43,13 @@ class GeneOntology:
                'cellular_component',
                'molecular_function']
 
-    def __init__(self, obo:str, verbose: bool=True):
+    ROOT_NODES = {
+        "biological_process": "GO:0008150",
+        "cellular_component": "GO:0005575",
+        "molecular_function": "GO:0003674",
+    }
+
+    def __init__(self, obo: str, verbose: bool = True):
         self._obo = obo
         self._terms: Dict = {}
         # a cache of the aliases to speed-up access
@@ -52,11 +58,10 @@ class GeneOntology:
         # useful caches for calculations
         self._annotation_counts_cache: Dict = {}
         self._is_uppropagated: Dict = {}
-         
 
     def find_term(self, go_id: str) -> GOTerm:
         """
-        If the go_id is in the structure, return the term, 
+        If the go_id is in the structure, return the term,
         otherwise, find by alias
 
         Parameters
@@ -68,7 +73,7 @@ class GeneOntology:
         -------
         GOTerm
             The term instance
-        """ 
+        """
         try:
             return self._terms[go_id]
         except KeyError:
@@ -119,9 +124,9 @@ class GeneOntology:
                         self.find_term(go_id).add_relation(self.find_term(split_relation[1]), "part_of")
 
     def load_gaf_file(self, gaf_file: str, organism_name: str,
-                      evidence_codes: List[str]=EXPERIMENTAL_EVIDENCE_CODES,
-                      domains: List[str]=DOMAINS,
-                      annotate_obsolete: bool=False) -> Dict:
+                      evidence_codes: List[str] = EXPERIMENTAL_EVIDENCE_CODES,
+                      domains: List[str] = DOMAINS,
+                      annotate_obsolete: bool = False) -> Dict:
         """
         Loads annotations from a GAF file into the selected annotation set.
 
@@ -130,7 +135,7 @@ class GeneOntology:
         gaf_file : str
             Path to the file
         organism_name : str
-            annotation set. If it does not exist, it will be created. 
+            annotation set. If it does not exist, it will be created.
             If it already exists, this function does nothing.
 
         Returns
@@ -144,7 +149,10 @@ class GeneOntology:
         The loaded annotations are not up-propagated.
         """
         parser = GafParser(gaf_file)
-        skip_counter = {k:0 for k in ["term_obsolete", "NOT qualifier", "not_in_domain", "term_not_found"]}
+        skip_counter = {k: 0 for k in ["term_obsolete",
+                                       "NOT qualifier",
+                                       "not_in_domain",
+                                       "term_not_found"]}
         for annotation in parser:
             if annotation.evidence_code in evidence_codes:
                 try:
@@ -170,8 +178,10 @@ class GeneOntology:
         self._is_uppropagated[organism_name] = False
         return skip_counter
 
-    def up_propagate_annotations(self, organism_name: str,
-                                 relations: List[str]=GOTerm.SUPPORTED_RELATIONS) -> None:
+    def up_propagate_annotations(
+            self,
+            organism_name: str,
+            relations: List[str] = GOTerm.SUPPORTED_RELATIONS) -> None:
         """
         Up-propagate all annotations within an annotation set
 
@@ -200,13 +210,12 @@ class GeneOntology:
         annotations = self.annotations(organism_name)
         self._annotation_counts_cache[organism_name] = {}
         self._annotation_counts_cache[organism_name]["global"] = annotations.shape[0]
-        for domain in GeneOntology.DOMAINS:
-            condition = annotations["Domain"] == domain
-            count = annotations[condition].shape[0]
-            self._annotation_counts_cache[organism_name][domain] = count
+        for domain, root_node in GeneOntology.ROOT_NODES.items():
+            t = self.find_term(root_node)
+            self._annotation_counts_cache[organism_name][domain] = len(t.annotations[organism_name])
 
         self._is_uppropagated[organism_name] = True
-                    
+
     def annotations(self, organism_name: str) -> pd.DataFrame:
         d = {k: [] for k in ["GO ID", "Protein", "Score", "Domain"]}
         for term in self._terms.values():
@@ -217,4 +226,3 @@ class GeneOntology:
                     d["Score"].append(score)
                     d["Domain"].append(term.domain)
         return pd.DataFrame(d)
-        

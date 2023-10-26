@@ -1,5 +1,10 @@
 # IDE
 .vscode
+.idea
+.vimspector*
+
+# Playground scripts and notebooks
+PG*
 
 # Apple
 .DS_Store

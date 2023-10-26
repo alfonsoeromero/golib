@@ -54,9 +54,9 @@ class Resnik(SemanticSimilarityMixin):
         if organism_name in self._ancestor_cache:
             return
         self._ancestor_cache[organism_name] = {}
-        for go_id, term in track(self.ontology._terms.items(), description="Building ancetry cache"):
+        for _, term in track(self.ontology._terms.items(), description="Building ancetry cache"):
             if len(term.annotations[organism_name]) > 0:
-                self._ancestor_cache[organism_name][term] = term.ancestors() 
+                self._ancestor_cache[organism_name][term] = {term} | term.ancestors()
 
     def term_wise(self, organism_name: str) -> Dict[str, npt.NDArray]:
         self._build_ancestor_cache(organism_name)
