@@ -1,5 +1,5 @@
-from go_lib.config.obo_line_reader_contracts import OboLineReaderContracts
-from go_lib.io.abstract_line_reader import AbstractLineReader
+from goapfp.config.obo_line_reader_contracts import OboLineReaderContracts
+from goapfp.io.abstract_line_reader import AbstractLineReader
 
 
 class OboLineReader(AbstractLineReader):

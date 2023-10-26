@@ -1,5 +1,5 @@
-from go_lib.config.gaf_line_reader_contracts import GafLineReaderContracts
-from go_lib.io.abstract_line_reader import AbstractLineReader
+from goapfp.config.gaf_line_reader_contracts import GafLineReaderContracts
+from goapfp.io.abstract_line_reader import AbstractLineReader
 
 
 class GafLineReader(AbstractLineReader):

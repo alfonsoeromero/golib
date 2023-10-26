@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from go_lib.io.gaf_line_reader import GafLineReader
+from goapfp.io.gaf_line_reader import GafLineReader
 
 from tests.common.gaf_line_reader_fixture import GafLineReaderFixture
 

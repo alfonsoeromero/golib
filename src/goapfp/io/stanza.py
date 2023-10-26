@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from collections import defaultdict
 from typing import DefaultDict
 
-from go_lib.io.value import Value
+from goapfp.io.value import Value
 
 
 @dataclass

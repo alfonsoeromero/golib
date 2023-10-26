@@ -2,8 +2,8 @@ import abc
 import numpy as np
 import numpy.typing as npt
 
-from go_lib.core.gene_ontology import GeneOntology
-from go_lib.core.goterm import GOTerm
+from goapfp.core.gene_ontology import GeneOntology
+from goapfp.core.goterm import GOTerm
 from rich.progress import track
 from typing import Dict, Set
 

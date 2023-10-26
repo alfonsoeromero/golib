@@ -1,8 +1,9 @@
 from unittest import TestCase
 
-from go_lib.core.gene_ontology import GeneOntology
+from goapfp.core.gene_ontology import GeneOntology
 
 from tests.common.gene_ontology_fixture import GeneOntologyFixture
+
 
 class TestGeneOntology(TestCase):
 

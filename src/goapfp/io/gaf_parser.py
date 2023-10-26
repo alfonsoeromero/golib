@@ -1,6 +1,6 @@
 from collections import defaultdict
-from go_lib.io.gaf_line_reader import GafLineReader
-from go_lib.io.go_annotation import GOAnnotation
+from goapfp.io.gaf_line_reader import GafLineReader
+from goapfp.io.go_annotation import GOAnnotation
 from typing import IO, Optional, Union, DefaultDict, Iterator
 
 

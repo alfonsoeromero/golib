@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "go-lib"
+name = "goapfp"
 version = "0.0.dev1"
 description = "Utility tools to work with the Gene Ontology in Python"
 readme = "README.md"
