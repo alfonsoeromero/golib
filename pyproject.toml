@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "golib"
+version = "0.0.1"
+dependencies = [
+    "numpy",
+    "pandas",
+    "rich",
+]
