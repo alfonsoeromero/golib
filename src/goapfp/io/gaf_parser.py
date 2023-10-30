@@ -1,7 +1,7 @@
 from collections import defaultdict
 from goapfp.io.gaf_line_reader import GafLineReader
 from goapfp.io.go_annotation import GOAnnotation
-from typing import IO, Optional, Union, DefaultDict, Iterator
+from typing import IO, Union, DefaultDict, Iterator
 
 
 class GafParser:
@@ -17,6 +17,7 @@ class GafParser:
     GafParser instance after the iterarion returs the first
     GOAnnotation instance.
     """
+
     def __init__(self, fp: Union[str, IO]):
         self._reader = GafLineReader(fp)
         self.headers: DefaultDict = defaultdict(str)

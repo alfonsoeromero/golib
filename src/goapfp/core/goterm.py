@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import Any, ClassVar, DefaultDict, List, Set
 import numpy as np
 
+
 @dataclass
 class GOTerm:
     """
@@ -33,13 +34,13 @@ class GOTerm:
             self.relations[relation].add(go_term)
             go_term.relations[f"a_{relation}"].add(self)
 
-    def parents(self, relations: List[str]=SUPPORTED_RELATIONS) -> Set:
+    def parents(self, relations: List[str] = SUPPORTED_RELATIONS) -> Set:
         _parents = set()
         for relation in relations:
             _parents |= self.relations[relation]
         return _parents
-        
-    def ancestors(self, relations: List[str]=SUPPORTED_RELATIONS) -> Set:
+
+    def ancestors(self, relations: List[str] = SUPPORTED_RELATIONS) -> Set:
         _ancestors = set()
         for relation in relations:
             _ancestors |= self.relations[relation]
@@ -47,13 +48,13 @@ class GOTerm:
                 _ancestors |= term.ancestors(relations)
         return _ancestors
 
-    def children(self, relations: List[str]=SUPPORTED_RELATIONS) -> Set:
+    def children(self, relations: List[str] = SUPPORTED_RELATIONS) -> Set:
         _children = set()
         for relation in relations:
             _children |= self.relations[f"a_{relation}"]
         return _children
 
-    def descendants(self, relations: List[str]=SUPPORTED_RELATIONS) -> Set:
+    def descendants(self, relations: List[str] = SUPPORTED_RELATIONS) -> Set:
         _descendants = set()
         for relation in relations:
             _descendants |= self.relations[f"a_{relation}"]
@@ -61,9 +62,9 @@ class GOTerm:
                 _descendants |= term.descendants()
         return _descendants
 
-    def up_propagate_annotations(self, organism_name:str,
-                                 relations: List[str]=SUPPORTED_RELATIONS,
-                                 same_domain: bool=True) -> None:
+    def up_propagate_annotations(self, organism_name: str,
+                                 relations: List[str] = SUPPORTED_RELATIONS,
+                                 same_domain: bool = True) -> None:
         """
         Recursively up-propagates the annotations until the root term
 
@@ -72,7 +73,7 @@ class GOTerm:
         organism_name : str
             The annotation set to up-propagate
         relations : list, optional
-            A list of relations that will be considered during up-propagation, 
+            A list of relations that will be considered during up-propagation,
             defaults to all supported relations.
             All relations are assumed to be transitive.
         same_domain : bool, defaults to True
@@ -95,30 +96,32 @@ class GOTerm:
 
     def information_content(self, organism_name: str) -> DefaultDict:
         """
-        Calculates the information content of this term considering an annotation set.
+        Calculates the information content of this term considering an
+        annotation set.
 
         Parameters
         ----------
         organism_name : str
-            The organism set to consider for the information content calculation
+            The organism set to consider for the information content
+            calculation
 
         Returns
         -------
         float
-            The information content of this term within the selected annotation set.
+            The information content of this term within the selected annotation
+            set.
 
         Notes
         -----
-        The information content is stored after the first time is calculated, and therefore
-        subsequent calls to this function are considerably faster than the initial call.
+        The information content is stored after the first time is calculated,
+        and therefore subsequent calls to this function are considerably faster
+        than the initial call.
         """
         if organism_name not in self.ic:
-            annotations_df = self.ontology.get_annotations(organism_name)
+            annotations_df = self.ontology.annotations(organism_name)
             len_annotations = len(self.annotations[organism_name])
             if len_annotations > 0:
                 self.ic[organism_name] = -np.log(len_annotations/annotations_df.shape[0])/np.log(2)
             else:
                 self.ic[organism_name] = 0
         return self.ic[organism_name]
-
-

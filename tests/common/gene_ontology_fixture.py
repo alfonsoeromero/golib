@@ -1,6 +1,5 @@
 import os
-from typing import Dict, List
-from goapfp.core.gene_ontology import GeneOntology
+from typing import Dict
 
 
 class GeneOntologyFixture:
