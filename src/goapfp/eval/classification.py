@@ -3,6 +3,7 @@ import numpy.typing as npt
 from typing import List, Dict
 from sklearn.metrics._ranking import _binary_clf_curve
 from sklearn.metrics import auc
+from rich.progress import track
 
 
 def _calculate_metrics(
@@ -83,7 +84,8 @@ def _calculate_s_min(
 def per_gene(prediction: npt.NDArray,
              labels: npt.NDArray,
              metrics: List[str] = ["auroc", "aupr", "f_max", "s_min"],
-             information_content: npt.NDArray | None = None) -> Dict:
+             information_content: npt.NDArray | None = None,
+             verbose: bool = False) -> Dict:
     """
     given a prediction and real labels, calculates multiple classification
     metrics on a per-gene basis. For improved performance.
@@ -107,7 +109,8 @@ def per_gene(prediction: npt.NDArray,
     information_content : ndarray, optional
         float array with shape (t,), specifying the information content of that
         term.
-
+    verbose : bool, default False
+        If True, show a progress bar with estimated time calcualtion
     Returns
     -------
     metrics : Dict
@@ -121,7 +124,7 @@ def per_gene(prediction: npt.NDArray,
     assert len(metrics) > 0
     metrics = {m: [] for m in metrics}
 
-    for prot_i in range(labels.shape[0]):
+    def _inner_loop(prot_i):
         res = _calculate_metrics(prediction[prot_i, :],
                                  labels[prot_i, :],
                                  [m for m in metrics if m != "s_min"])
@@ -131,13 +134,23 @@ def per_gene(prediction: npt.NDArray,
             metrics["s_min"].append(_calculate_s_min(prediction[prot_i, :],
                                                      labels[prot_i, :],
                                                      information_content))
+
+    if verbose:
+        for prot_i in track(range(labels.shape[0]),
+                            description="per gene metrics..."):
+            _inner_loop(prot_i)
+    else:
+        for prot_i in range(labels.shape[0]):
+            _inner_loop(prot_i)
+
     return metrics
 
 
 def per_term(prediction: npt.NDArray,
              labels: npt.NDArray,
              metrics: List[str] = ["auroc", "aupr", "f_max", "s_min"],
-             information_content: npt.NDArray | None = None) -> Dict:
+             information_content: npt.NDArray | None = None,
+             verbose: bool = False) -> Dict:
     """
     given a prediction and real labels, calculates multiple classification
     metrics on a per-term basis.
@@ -161,6 +174,8 @@ def per_term(prediction: npt.NDArray,
     information_content : ndarray, optional
         float array with shape (t,), specifying the information content of that
         term.
+    verbose : bool, default False
+        If True, show a progress bar with estimated time calcualtion
 
     Returns
     -------
@@ -175,7 +190,7 @@ def per_term(prediction: npt.NDArray,
     assert len(metrics) > 0
     metrics = {m: [] for m in metrics}
 
-    for term_i in range(labels.shape[1]):
+    def _inner_loop(term_i):
         res = _calculate_metrics(prediction[:, term_i],
                                  labels[:, term_i],
                                  [m for m in metrics if m != "s_min"])
@@ -186,4 +201,13 @@ def per_term(prediction: npt.NDArray,
                     _calculate_s_min(prediction[:, term_i],
                                      labels[:, term_i],
                                      information_content[term_i]))
+
+    if verbose:
+        for term_i in track(range(labels.shape[1]),
+                            description="per term metrics..."):
+            _inner_loop(term_i)
+    else:
+        for term_i in range(labels.shape[1]):
+            _inner_loop(term_i)
+
     return metrics
