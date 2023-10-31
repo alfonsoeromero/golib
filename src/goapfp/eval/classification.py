@@ -35,6 +35,7 @@ def _calculate_metrics(
             res["aupr"] = qty_pos / N
         if "f_max" in metrics:
             res["f_max"] = 0.0
+        return res
 
     FP, TP, TH = _binary_clf_curve(dat[:, 1], dat[:, 0], pos_label=1.0)
     # TN = qty_neg - FP
