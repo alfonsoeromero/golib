@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.typing as npt
-from typing import List, Dict
+from typing import List, Dict, Union
 from sklearn.metrics._ranking import _binary_clf_curve
 from sklearn.metrics import auc
 from rich.progress import track
@@ -62,7 +62,7 @@ def _calculate_metrics(
 def _calculate_s_min(
         prediction: npt.NDArray,
         labels: npt.NDArray,
-        ic: npt.NDArray | float) -> float:
+        ic: Union[npt.NDArray, float]) -> float:
     assert prediction.shape == labels.shape
     if isinstance(ic, float):
         assert ic >= 0
@@ -84,7 +84,7 @@ def _calculate_s_min(
 def per_gene(prediction: npt.NDArray,
              labels: npt.NDArray,
              metrics: List[str] = ["auroc", "aupr", "f_max", "s_min"],
-             information_content: npt.NDArray | None = None,
+             information_content: Union[npt.NDArray, None] = None,
              verbose: bool = False) -> Dict:
     """
     given a prediction and real labels, calculates multiple classification
@@ -149,7 +149,7 @@ def per_gene(prediction: npt.NDArray,
 def per_term(prediction: npt.NDArray,
              labels: npt.NDArray,
              metrics: List[str] = ["auroc", "aupr", "f_max", "s_min"],
-             information_content: npt.NDArray | None = None,
+             information_content: Union[npt.NDArray, None] = None,
              verbose: bool = False) -> Dict:
     """
     given a prediction and real labels, calculates multiple classification
