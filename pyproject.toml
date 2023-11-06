@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "goapfp"
-version = "0.0.dev6"
+version = "0.0.dev8"
 description = "Utility tools to work with the Gene Ontology in Python"
 readme = "README.md"
 requires-python = ">=3.8"

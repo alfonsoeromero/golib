@@ -166,13 +166,15 @@ class GeneOntology:
         with open(annotation_file) as annotations:
             for line in annotations:
                 fields = line.strip().split("\t")
-                match fields:
-                    case (protein, goterm):
-                        score = 1.0
-                    case (protein, goterm, score):
-                        score = float(score)
-                    case _:
-                        raise ValueError
+                if len(fields) == 3:
+                    protein, goterm, score = fields
+                    score = float(score)
+                elif len(fields) == 2:
+                    protein, goterm = fields
+                    score = 1.0
+                else:
+                    raise ValueError
+
                 try:
                     term = self.find_term(goterm)
                 except KeyError:
