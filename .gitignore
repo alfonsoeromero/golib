@@ -1,8 +1,16 @@
 # IDE
 .vscode
+.idea
+.vimspector*
+
+# Playground scripts and notebooks
+PG*
 
 # Apple
 .DS_Store
+
+# Python notebooks
+*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
